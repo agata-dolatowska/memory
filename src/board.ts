@@ -1,10 +1,9 @@
 import Card from './card';
 import {imageNames} from './imageNames';
 
-
 export default class Board{
     private cardCount: number = 12;
-    private cards:Card[] = [];
+    public cards:Card[] = [];
     private imagesCount = imageNames.length;
     private selectedImagesIds:number[]=[];
 
@@ -14,7 +13,6 @@ export default class Board{
         this.selectedImagesIds=[0,1,2,3,4,5];
         this.renderEmptyCards();
         this.createCards();
-        this.addClickEventToCards();
     }
 
     private renderBoard():void{
@@ -37,15 +35,17 @@ export default class Board{
     private createCards(){
         let currentNumber:number = 0;
         let allIdsTwice:number[] = [...this.selectedImagesIds,...this.selectedImagesIds];
+        let idCounter:number = 0;
 
         for(let x=0; this.cards.length<this.cardCount; x++){
             currentNumber = Math.floor(Math.random()*allIdsTwice.length);
 
             if(this.cardOccurredLessThanTwice(imageNames[allIdsTwice[currentNumber]])){
                 this.cards.push(
-                    new Card(imageNames[allIdsTwice[currentNumber]])
+                    new Card(imageNames[allIdsTwice[currentNumber]], idCounter)
                     );
-                    allIdsTwice.splice(currentNumber,1)
+                    allIdsTwice.splice(currentNumber,1);
+                    idCounter++;
             }
         }
     }
@@ -70,20 +70,5 @@ export default class Board{
         document.querySelector('.board').insertAdjacentHTML("afterbegin", html);
     }
 
-    private addClickEventToCards():void{
-        let allCards = document.getElementsByClassName('card');
 
-        for (let x = 0; x < allCards.length; x++) {
-            allCards[x].addEventListener('click', e=>this.showCard(e), false);
-        }
-    }
-
-    private showCard(e:Event):void{
-        const clickedCardId:number = parseInt((e.target as Element).id);
-        this.cards[clickedCardId].isFacingUp = true;
-
-        const html= `<img src='${this.cards[clickedCardId].imageSrc}' id='card${clickedCardId}'>`;
-
-        document.querySelector(`[id='${clickedCardId}']`).insertAdjacentHTML('afterbegin',html);
-    }
 }
