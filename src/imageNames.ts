@@ -4,14 +4,11 @@ import img3 from './assets/clay-banks-RMw7q256vkc-unsplash.jpg';
 import img4 from './assets/dino-reichmuth-FdRMYSm7_8E-unsplash.jpg';
 import img5 from './assets/fotografierende-ALGBcvNzMFE-unsplash.jpg';
 import img6 from './assets/hannah-grace-UW6fmtQtvjM-unsplash.jpg';
+import img7 from './assets/johannes-plenio-wp7qyfyJBj0-unsplash.jpg';
+import img8 from './assets/jonathan-wheeler-n1PFjN_--Xk-unsplash.jpg';
+import img9 from './assets/keisuke-higashio-hJ51X8nUtTk-unsplash.jpg';
+import img10 from './assets/laura-smetsers-St08jKkPVHw-unsplash.jpg';
+import img11 from './assets/stephen-leonardi-U8-U5cH1O4o-unsplash.jpg';
 
-export const imageNames = [img1, img2, img3, img4, img5, img6
+export const imageNames = [img1, img2, img3, img4, img5, img6, img7, img8, img9, img10, img11
 ];
-
-// export const imageNames:string[] = [
-//     'johannes-plenio-wp7qyfyJBj0-unsplash',
-//     'jonathan-wheeler-n1PFjN_--Xk-unsplash',
-//     'keisuke-higashio-hJ51X8nUtTk-unsplash',
-//     'laura-smetsers-St08jKkPVHw-unsplash',
-//     'stephen-leonardi-U8-U5cH1O4o-unsplash'
-// ];

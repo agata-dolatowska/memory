@@ -1,8 +1,5 @@
 import './styles/style.scss';
-import Board from './board';
-import Gameplay from './gameplay';
+import Game from './game';
 
-const board = new Board();
-board.createBoard();
-
-const gameplay = new Gameplay(board.cards);
+const game = new Game();
+game.startGame();
