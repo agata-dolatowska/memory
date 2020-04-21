@@ -19,7 +19,7 @@ module.exports = {
   module:{
       rules:[
           {
-              test: /\.css$/,
+              test: /\.s[ac]ss$/i,
               use: [
                   'style-loader',
                   'css-loader',
@@ -30,6 +30,12 @@ module.exports = {
             test: /\.tsx?$/,
             use: 'ts-loader',
             exclude: /node_modules/,
+          },
+          {
+            test: /\.(png|svg|jpg|gif)$/,
+            use: [
+              'file-loader',
+            ],
           },
       ],
   },
