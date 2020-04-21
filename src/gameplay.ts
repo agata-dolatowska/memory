@@ -19,30 +19,28 @@ export default class Gameplay {
         }
     }
 
-    public checkIfFoundPair(x: Card[]): boolean {
-        const facingUpCards = x;
+    public checkIfFoundPair(FacingUpCards: Card[]): boolean {
+        const facingUpCards = FacingUpCards;
 
         if (facingUpCards != undefined) {
             if (facingUpCards[0].imageSrc == facingUpCards[1].imageSrc) {
-                for (let x = 0; x < facingUpCards.length; x++) {
-                    this.cards[facingUpCards[x].id].isFacingUp = false;
-                    this.cards[facingUpCards[x].id].pairFound = true;
-                    document.querySelector(`[id='${facingUpCards[x].id}']`).classList.add('pair-found');
+                for (let cardIndex = 0; cardIndex < facingUpCards.length; cardIndex++) {
+                    this.cards[facingUpCards[cardIndex].id].isFacingUp = false;
+                    this.cards[facingUpCards[cardIndex].id].pairFound = true;
+                    document.querySelector(`[id='${facingUpCards[cardIndex].id}']`).classList.add('pair-found');
                 }
-                console.log('KUPA :3');
-
                 return true;
             }
         }
         return false;
     }
 
-    public hideVisibleCards(x: Card[]): void {
-        const facingUpCards = x;
+    public hideVisibleCards(FacingUpCards: Card[]): void {
+        const facingUpCards = FacingUpCards;
         if (facingUpCards.length == 2) {
-            for (let x = 0; x < facingUpCards.length; x++) {
-                document.querySelector(`#card${this.cards[facingUpCards[x].id].id}`).remove();
-                this.cards[facingUpCards[x].id].isFacingUp = false;
+            for (let cardIndex = 0; cardIndex < facingUpCards.length; cardIndex++) {
+                document.querySelector(`#card${this.cards[facingUpCards[cardIndex].id].id}`).remove();
+                this.cards[facingUpCards[cardIndex].id].isFacingUp = false;
             }
         }
     }

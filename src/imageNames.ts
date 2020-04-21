@@ -12,3 +12,10 @@ import img11 from './assets/stephen-leonardi-U8-U5cH1O4o-unsplash.jpg';
 
 export const imageNames = [img1, img2, img3, img4, img5, img6, img7, img8, img9, img10, img11
 ];
+
+// function importAll(r: any) {
+//     console.log(r.keys().map(r));
+//     return r.keys().map(r);
+// }
+
+// export const imageNames = importAll(require.context('./assets', false, /\.(png|jpe?g|svg)$/));

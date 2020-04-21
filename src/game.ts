@@ -1,92 +1,57 @@
 import Board from './board';
 import Gameplay from './gameplay';
-import Card from './card';
-import { imageNames } from './imageNames';
+import Cards from './cards';
+import GameConfiguration from './gameConfiguration';
 
 export default class Game {
     private board: Board;
     private gameplay: Gameplay;
-    private imagesCount = imageNames.length;
-    private selectedImagesIds: number[] = [];
+    private gameConfiguration: GameConfiguration;
+    private cards: Cards;
     private cardEvent = this.manageCardsVisibility.bind(this);
-    public cards: Card[] = [];
+    private cardInputEvent = this.updateCardCount.bind(this);
 
-    public startGame(): void {
-        this.board = new Board();
-        this.board.createBoard();
-        this.gameplay = new Gameplay(this.cards);
-        this.selectRandomImages();
-        this.createCards();
-        this.addClickEventToCards();
+    constructor() {
+        this.gameConfiguration = new GameConfiguration;
+        this.gameConfiguration.renderCardAmountInput();
+        document.querySelector('#cards-count').addEventListener('click', this.cardInputEvent);
+    }
+
+    public updateCardCount() {
+        this.gameConfiguration.cardsCount = parseInt((<HTMLInputElement>document.querySelector('#cards-count')).value);
+        this.newGame();
     }
 
     public newGame(): void {
-        this.gameplay.playerMoves = 0;
+        if (!document.querySelector('.board')) {
+            this.board = new Board();
+            this.board.renderBoard();
+        }
+
         document.querySelector('.board').innerHTML = '';
-        this.board.renderEmptyCards();
-        this.selectRandomImages();
-        this.cards = [];
-        this.createCards();
-        this.gameplay = new Gameplay(this.cards);
+        this.cards = new Cards(this.gameConfiguration.cardsCount);
+        this.cards.createCards();
+        this.gameplay = new Gameplay(this.cards.cardsList);
+        this.gameplay.playerMoves = 0;
         this.addClickEventToCards();
-    }
-
-    private selectRandomImages(): void {
-        const uniqueCardsCount: number = this.board.cardCount / 2;
-        let currentNumber: number = 0;
-
-        for (let x = 0; this.selectedImagesIds.length < uniqueCardsCount; x++) {
-            currentNumber = Math.floor(Math.random() * this.imagesCount);
-            if (!this.selectedImagesIds.includes(currentNumber)) {
-                this.selectedImagesIds.push(currentNumber);
-            }
-        }
-    }
-
-    private createCards() {
-        let currentNumber: number = 0;
-        let allIdsTwice: number[] = [...this.selectedImagesIds, ...this.selectedImagesIds];
-        let idCounter: number = 0;
-
-        for (let x = 0; this.cards.length < this.board.cardCount; x++) {
-            currentNumber = Math.floor(Math.random() * allIdsTwice.length);
-
-            if (this.cardOccurredLessThanTwice(imageNames[allIdsTwice[currentNumber]])) {
-                this.cards.push(
-                    new Card(imageNames[allIdsTwice[currentNumber]], idCounter)
-                );
-                allIdsTwice.splice(currentNumber, 1);
-                idCounter++;
-            }
-        }
-    }
-
-    private cardOccurredLessThanTwice(x: string): boolean {
-        const cardOccurrences = this.cards.filter(y => y.imageSrc == `${x}`);
-        if (cardOccurrences.length < 2) {
-            return true;
-        }
-        else {
-            return false;
-        }
     }
 
     private addClickEventToCards(): void {
         let allCards = document.getElementsByClassName('card');
 
-        for (let x = 0; x < allCards.length; x++) {
-            allCards[x].addEventListener('click', this.cardEvent);
+        for (let cardDivId = 0; cardDivId < allCards.length; cardDivId++) {
+            allCards[cardDivId].addEventListener('click', this.cardEvent);
         }
     }
 
     private manageCardsVisibility(e: Event): void {
         const clickedCardId: number = parseInt((e.target as Element).id);
-        let facingUpCards = this.cards.filter(card => card.isFacingUp == true);
+        let facingUpCards = this.cards.cardsList.filter(card => card.isFacingUp == true);
 
         this.gameplay.hideVisibleCards(facingUpCards);
 
         this.gameplay.showCard(clickedCardId);
-        facingUpCards = this.cards.filter(card => card.isFacingUp == true);
+        facingUpCards = this.cards.cardsList.filter(card => card.isFacingUp == true);
 
         if (facingUpCards.length == 2) {
             if (this.gameplay.checkIfFoundPair(facingUpCards)) {
