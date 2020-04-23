@@ -11,7 +11,8 @@ export default class Game {
     private cardEvent = this.manageCardsVisibility.bind(this);
     private cardInputEvent = this.updateCardCount.bind(this);
     private sameCardsInputEvent = this.updateSameCardsCount.bind(this);
-
+    private playingDuration: number;
+    private startGameDate: number;
 
     constructor() {
         this.gameConfiguration = new GameConfiguration;
@@ -21,12 +22,12 @@ export default class Game {
         document.querySelector('#same-cards-input').addEventListener('click', this.sameCardsInputEvent);
     }
 
-    public updateCardCount() {
+    private updateCardCount() {
         this.gameConfiguration.cardsCount = parseInt((<HTMLInputElement>document.querySelector('#cards-count')).value);
         this.newGame();
     }
 
-    public updateSameCardsCount() {
+    private updateSameCardsCount() {
         this.gameConfiguration.sameCards = parseInt((<HTMLInputElement>document.querySelector('#same-cards-input')).value);
 
         if (parseInt((<HTMLInputElement>document.querySelector('#cards-count')).value) % this.gameConfiguration.sameCards != 0) {
@@ -49,6 +50,8 @@ export default class Game {
         this.gameplay = new Gameplay(this.cards.cardsList, this.gameConfiguration.sameCards);
         this.gameplay.playerMoves = 0;
         this.addClickEventToCards();
+        this.startGameDate = new Date().getTime();
+        this.playingDuration = window.setTimeout(this.gameOver, this.gameConfiguration.timeToCompleteGame);
     }
 
     private addClickEventToCards(): void {
@@ -79,23 +82,44 @@ export default class Game {
         }
     }
 
-    public endGameMessage(): void {
+    private gameOver(): void {
         const html: string = `
         <div class='message-overlay'>
             <div class='message-wrapper'>
-                <h1>You win!</h1>
-                <p>Result - ${this.gameplay.playerMoves} clicks</p>
+                <h1>Time over!</h1>
                 <button id="new-game" class="button">Start new game</button>
             </div>
         </div>
         `;
 
+        clearTimeout(this.playingDuration);
+
         document.querySelector('body').insertAdjacentHTML('afterbegin', html);
-        document.querySelector('.message-overlay').addEventListener('click', e => this.hideNewGameMessage());
+        document.querySelector('#new-game').addEventListener('click', e => this.hideNewGameMessage());
     }
 
-    public hideNewGameMessage(): void {
-        document.querySelector('.message-overlay').removeEventListener('click', this.hideNewGameMessage);
+    private endGameMessage(): void {
+        const elapsedTime = Math.ceil((new Date().getTime() - this.startGameDate) / 1000);
+        clearTimeout(this.playingDuration);
+
+        const html: string = `
+        <div class='message-overlay'>
+            <div class='message-wrapper'>
+                <h1>You win!</h1>
+                <p>Result - ${this.gameplay.playerMoves} clicks</p>
+                <p>Time - ${elapsedTime} seconds</p>
+                <button id="new-game" class="button">Start new game</button>
+            </div>
+        </div>
+        `;
+
+
+        document.querySelector('body').insertAdjacentHTML('afterbegin', html);
+        document.querySelector('#new-game').addEventListener('click', e => this.hideNewGameMessage());
+    }
+
+    private hideNewGameMessage(): void {
+        document.querySelector('#new-game').removeEventListener('click', this.hideNewGameMessage);
         document.querySelector('.message-overlay').remove();
         this.newGame();
     }

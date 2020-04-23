@@ -44,8 +44,8 @@ export default class Cards {
     private createCardElements() {
         let currentNumber: number = 0;
         let idCounter: number = 0;
-        console.log(this.selectedImagesIds);
         let allIdsTwice: number[] = [];
+
         for (let i = 0; i < this.cardCount; i++) {
             allIdsTwice.push(...this.selectedImagesIds);
         }

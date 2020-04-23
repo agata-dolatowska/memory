@@ -4,6 +4,7 @@ export default class Gameplay {
     public playerMoves: number = 0;
     public cards: Card[] = [];
     public sameCards: number;
+    public timeToCompleteGame: number;
 
     constructor(cards: Card[], sameCards: number) {
         this.cards = cards;
@@ -26,7 +27,6 @@ export default class Gameplay {
 
         if (facingUpCards != undefined) {
             if (this.allFacingUpCardsHaveSameImage(facingUpCards)) {
-                // if (facingUpCards[0].imageSrc == facingUpCards[1].imageSrc) {
                 for (let cardIndex = 0; cardIndex < facingUpCards.length; cardIndex++) {
                     this.cards[facingUpCards[cardIndex].id].isFacingUp = false;
                     this.cards[facingUpCards[cardIndex].id].pairFound = true;
