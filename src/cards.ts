@@ -6,9 +6,11 @@ export default class Cards {
     private imagesCount = imageNames.length;
     public cardsList: Card[] = [];
     public cardCount: number;
+    public sameCards: number;
 
-    constructor(cardCount: number) {
+    constructor(cardCount: number, sameCards: number) {
         this.cardCount = cardCount;
+        this.sameCards = sameCards;
     }
 
     public createCards() {
@@ -28,7 +30,7 @@ export default class Cards {
     }
 
     private selectRandomImages(): void {
-        const uniqueCardsCount: number = this.cardCount / 2;
+        const uniqueCardsCount: number = this.cardCount / this.sameCards;
         let currentNumber: number = 0;
 
         for (let i = 0; this.selectedImagesIds.length < uniqueCardsCount; i++) {
@@ -41,13 +43,17 @@ export default class Cards {
 
     private createCardElements() {
         let currentNumber: number = 0;
-        let allIdsTwice: number[] = [...this.selectedImagesIds, ...this.selectedImagesIds];
         let idCounter: number = 0;
+        console.log(this.selectedImagesIds);
+        let allIdsTwice: number[] = [];
+        for (let i = 0; i < this.cardCount; i++) {
+            allIdsTwice.push(...this.selectedImagesIds);
+        }
 
         for (let i = 0; this.cardsList.length < this.cardCount; i++) {
             currentNumber = Math.floor(Math.random() * allIdsTwice.length);
 
-            if (this.cardOccurredLessThanTwice(imageNames[allIdsTwice[currentNumber]])) {
+            if (this.canAddCard(imageNames[allIdsTwice[currentNumber]])) {
                 this.cardsList.push(
                     new Card(imageNames[allIdsTwice[currentNumber]], idCounter)
                 );
@@ -57,9 +63,9 @@ export default class Cards {
         }
     }
 
-    private cardOccurredLessThanTwice(currentImageSrc: string): boolean {
+    private canAddCard(currentImageSrc: string): boolean {
         const cardOccurrences = this.cardsList.filter(card => card.imageSrc == `${currentImageSrc}`);
-        if (cardOccurrences.length < 2) {
+        if (cardOccurrences.length < this.sameCards) {
             return true;
         }
         else {

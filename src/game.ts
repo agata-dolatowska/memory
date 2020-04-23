@@ -10,15 +10,30 @@ export default class Game {
     private cards: Cards;
     private cardEvent = this.manageCardsVisibility.bind(this);
     private cardInputEvent = this.updateCardCount.bind(this);
+    private sameCardsInputEvent = this.updateSameCardsCount.bind(this);
+
 
     constructor() {
         this.gameConfiguration = new GameConfiguration;
         this.gameConfiguration.renderCardAmountInput();
         document.querySelector('#cards-count').addEventListener('click', this.cardInputEvent);
+        this.gameConfiguration.renderSameCardsInput();
+        document.querySelector('#same-cards-input').addEventListener('click', this.sameCardsInputEvent);
     }
 
     public updateCardCount() {
         this.gameConfiguration.cardsCount = parseInt((<HTMLInputElement>document.querySelector('#cards-count')).value);
+        this.newGame();
+    }
+
+    public updateSameCardsCount() {
+        this.gameConfiguration.sameCards = parseInt((<HTMLInputElement>document.querySelector('#same-cards-input')).value);
+
+        if (parseInt((<HTMLInputElement>document.querySelector('#cards-count')).value) % this.gameConfiguration.sameCards != 0) {
+            this.gameConfiguration.cardsCount = 12;
+        }
+        (<HTMLInputElement>document.querySelector('#cards-count')).step = `'${this.gameConfiguration.sameCards}'`;
+
         this.newGame();
     }
 
@@ -29,9 +44,9 @@ export default class Game {
         }
 
         document.querySelector('.board').innerHTML = '';
-        this.cards = new Cards(this.gameConfiguration.cardsCount);
+        this.cards = new Cards(this.gameConfiguration.cardsCount, this.gameConfiguration.sameCards);
         this.cards.createCards();
-        this.gameplay = new Gameplay(this.cards.cardsList);
+        this.gameplay = new Gameplay(this.cards.cardsList, this.gameConfiguration.sameCards);
         this.gameplay.playerMoves = 0;
         this.addClickEventToCards();
     }
@@ -53,7 +68,7 @@ export default class Game {
         this.gameplay.showCard(clickedCardId);
         facingUpCards = this.cards.cardsList.filter(card => card.isFacingUp == true);
 
-        if (facingUpCards.length == 2) {
+        if (facingUpCards.length == this.gameConfiguration.sameCards) {
             if (this.gameplay.checkIfFoundPair(facingUpCards)) {
                 document.querySelector(`[id='${clickedCardId}']`).removeEventListener('click', this.cardEvent);
             }
