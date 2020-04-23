@@ -20,6 +20,7 @@ export default class Game {
         document.querySelector('#cards-count').addEventListener('click', this.cardInputEvent);
         this.gameConfiguration.renderSameCardsInput();
         document.querySelector('#same-cards-input').addEventListener('click', this.sameCardsInputEvent);
+        this.gameConfiguration.renderTimerProgressBar();
     }
 
     private updateCardCount() {
@@ -52,6 +53,7 @@ export default class Game {
         this.addClickEventToCards();
         this.startGameDate = new Date().getTime();
         this.playingDuration = window.setTimeout(this.gameOver, this.gameConfiguration.timeToCompleteGame);
+        document.querySelector('.time-progress').classList.add('timer');
     }
 
     private addClickEventToCards(): void {
@@ -91,6 +93,7 @@ export default class Game {
             </div>
         </div>
         `;
+        document.querySelector('.time-progress').classList.remove('timer');
 
         clearTimeout(this.playingDuration);
 
@@ -101,6 +104,7 @@ export default class Game {
     private endGameMessage(): void {
         const elapsedTime = Math.ceil((new Date().getTime() - this.startGameDate) / 1000);
         clearTimeout(this.playingDuration);
+        document.querySelector('.time-progress').classList.remove('timer');
 
         const html: string = `
         <div class='message-overlay'>
@@ -112,7 +116,6 @@ export default class Game {
             </div>
         </div>
         `;
-
 
         document.querySelector('body').insertAdjacentHTML('afterbegin', html);
         document.querySelector('#new-game').addEventListener('click', e => this.hideNewGameMessage());

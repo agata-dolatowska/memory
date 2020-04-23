@@ -1,8 +1,7 @@
 export default class GameConfiguration {
     public cardsCount: number = 12;
     public sameCards: number = 2;
-    // public timeToCompleteGame: number = 60000;
-    public timeToCompleteGame: number = 120000;
+    public timeToCompleteGame: number = 60000;
     public renderCardAmountInput(): void {
         const html = `<div class="cards-amount">
             <label for="cards-count">Set amount of cards</label>
@@ -20,5 +19,15 @@ export default class GameConfiguration {
         `;
 
         document.querySelector('body').insertAdjacentHTML('afterbegin', html);
+    }
+
+    public renderTimerProgressBar(): void {
+        const html = `
+        <div class='time-progressbar-wrapper'>
+            <div class='time-progress'></div>
+        </div>
+        `;
+
+        document.querySelector('body').insertAdjacentHTML("afterbegin", html);
     }
 }
