@@ -13,7 +13,7 @@ export default class Gameplay {
 
     public showCard(clickedCardId: number): void {
         this.playerMoves++;
-        if (this.cards[clickedCardId].pairFound == false) {
+        if (this.cards[clickedCardId] && this.cards[clickedCardId].pairFound == false) {
             this.cards[clickedCardId].isFacingUp = true;
 
             const html = `<img src='${this.cards[clickedCardId].imageSrc}' id='card${clickedCardId}'>`;

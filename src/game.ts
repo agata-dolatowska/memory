@@ -11,16 +11,19 @@ export default class Game {
     private cardEvent = this.manageCardsVisibility.bind(this);
     private cardInputEvent = this.updateCardCount.bind(this);
     private sameCardsInputEvent = this.updateSameCardsCount.bind(this);
+    private endGameMessageEvent = this.hideNewGameMessage.bind(this);
     private playingDuration: number;
     private startGameDate: number;
 
     constructor() {
+        this.board = new Board();
+        this.board.renderBoard();
         this.gameConfiguration = new GameConfiguration;
-        this.gameConfiguration.renderCardAmountInput();
-        document.querySelector('#cards-count').addEventListener('click', this.cardInputEvent);
-        this.gameConfiguration.renderSameCardsInput();
-        document.querySelector('#same-cards-input').addEventListener('click', this.sameCardsInputEvent);
         this.gameConfiguration.renderTimerProgressBar();
+        this.gameConfiguration.renderCardAmountInput();
+        document.querySelector('#cards-count').addEventListener('input', this.cardInputEvent);
+        this.gameConfiguration.renderSameCardsInput();
+        document.querySelector('#same-cards-input').addEventListener('input', this.sameCardsInputEvent);
     }
 
     private updateCardCount() {
@@ -35,16 +38,17 @@ export default class Game {
             this.gameConfiguration.cardsCount = 12;
         }
         (<HTMLInputElement>document.querySelector('#cards-count')).step = `'${this.gameConfiguration.sameCards}'`;
+        document.querySelector('.time-progress').classList.remove('timer');
 
         this.newGame();
     }
 
     public newGame(): void {
-        if (!document.querySelector('.board')) {
-            this.board = new Board();
-            this.board.renderBoard();
+        if (document.querySelector('.timer')) {
+            document.querySelector('.time-progress').classList.remove('timer');
         }
 
+        clearTimeout(this.playingDuration);
         document.querySelector('.board').innerHTML = '';
         this.cards = new Cards(this.gameConfiguration.cardsCount, this.gameConfiguration.sameCards);
         this.cards.createCards();
@@ -52,7 +56,8 @@ export default class Game {
         this.gameplay.playerMoves = 0;
         this.addClickEventToCards();
         this.startGameDate = new Date().getTime();
-        this.playingDuration = window.setTimeout(this.gameOver, this.gameConfiguration.timeToCompleteGame);
+        this.playingDuration = window.setTimeout(this.gameOver.bind(this), this.gameConfiguration.timeToCompleteGame);
+
         document.querySelector('.time-progress').classList.add('timer');
     }
 
@@ -98,7 +103,7 @@ export default class Game {
         clearTimeout(this.playingDuration);
 
         document.querySelector('body').insertAdjacentHTML('afterbegin', html);
-        document.querySelector('#new-game').addEventListener('click', e => this.hideNewGameMessage());
+        document.querySelector('#new-game').addEventListener('click', this.endGameMessageEvent);
     }
 
     private endGameMessage(): void {
@@ -118,11 +123,11 @@ export default class Game {
         `;
 
         document.querySelector('body').insertAdjacentHTML('afterbegin', html);
-        document.querySelector('#new-game').addEventListener('click', e => this.hideNewGameMessage());
+        document.querySelector('#new-game').addEventListener('click', this.endGameMessageEvent);
     }
 
     private hideNewGameMessage(): void {
-        document.querySelector('#new-game').removeEventListener('click', this.hideNewGameMessage);
+        document.querySelector('#new-game').removeEventListener('click', this.endGameMessageEvent);
         document.querySelector('.message-overlay').remove();
         this.newGame();
     }
