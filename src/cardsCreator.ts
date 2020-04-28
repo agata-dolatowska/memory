@@ -1,16 +1,16 @@
 import Card from "./card";
 import { imageNames } from "./imageNames";
 
-export default class Cards {
+export default class CardsCreator {
     private selectedImagesIds: number[] = [];
     private imagesCount = imageNames.length;
     public cardsList: Card[] = [];
     public cardCount: number;
-    public sameCards: number;
+    public sameCardsCount: number;
 
     constructor(cardCount: number, sameCards: number) {
         this.cardCount = cardCount;
-        this.sameCards = sameCards;
+        this.sameCardsCount = sameCards;
     }
 
     public createCards() {
@@ -30,7 +30,7 @@ export default class Cards {
     }
 
     private selectRandomImages(): void {
-        const uniqueCardsCount: number = this.cardCount / this.sameCards;
+        const uniqueCardsCount: number = this.cardCount / this.sameCardsCount;
         let currentNumber: number = 0;
 
         for (let i = 0; this.selectedImagesIds.length < uniqueCardsCount; i++) {
@@ -64,8 +64,8 @@ export default class Cards {
     }
 
     private canAddCard(currentImageSrc: string): boolean {
-        const cardOccurrences = this.cardsList.filter(card => card.imageSrc == `${currentImageSrc}`);
-        if (cardOccurrences.length < this.sameCards) {
+        const cardOccurrences = this.cardsList.filter(card => card.imageSrc === `${currentImageSrc}`);
+        if (cardOccurrences.length < this.sameCardsCount) {
             return true;
         }
         else {

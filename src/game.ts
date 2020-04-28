@@ -1,13 +1,13 @@
 import Board from './board';
 import Gameplay from './gameplay';
-import Cards from './cards';
+import CardsCreator from './cardsCreator';
 import GameConfiguration from './gameConfiguration';
 
 export default class Game {
     private board: Board;
     private gameplay: Gameplay;
     private gameConfiguration: GameConfiguration;
-    private cards: Cards;
+    private cardsCreator: CardsCreator;
     private cardEvent = this.manageCardsVisibility.bind(this);
     private cardInputEvent = this.updateCardCount.bind(this);
     private sameCardsInputEvent = this.updateSameCardsCount.bind(this);
@@ -19,7 +19,6 @@ export default class Game {
         this.board = new Board();
         this.board.renderBoard();
         this.gameConfiguration = new GameConfiguration;
-        this.gameConfiguration.renderTimerProgressBar();
         this.gameConfiguration.renderCardAmountInput();
         document.querySelector('#cards-count').addEventListener('input', this.cardInputEvent);
         this.gameConfiguration.renderSameCardsInput();
@@ -27,38 +26,109 @@ export default class Game {
     }
 
     private updateCardCount() {
-        this.gameConfiguration.cardsCount = parseInt((<HTMLInputElement>document.querySelector('#cards-count')).value);
-        this.newGame();
+        const cardCountElement = <HTMLInputElement>document.querySelector('#cards-count');
+        const cardCountErrorElement = document.querySelector('.cards-count-error');
+
+        cardCountErrorElement.innerHTML = '';
+        if (cardCountElement.classList.contains('invalid')) {
+            cardCountElement.classList.remove('invalid');
+            cardCountErrorElement.classList.remove('error-active');
+        }
+
+        const errorMessage = this.validateCardCount(cardCountElement);
+
+        if (errorMessage !== undefined) {
+            cardCountErrorElement.insertAdjacentText('afterbegin', errorMessage);
+            cardCountElement.classList.add('invalid');
+            cardCountErrorElement.classList.add('error-active');
+        } else {
+            this.gameConfiguration.cardsCount = parseInt((<HTMLInputElement>cardCountElement).value);
+            this.newGame();
+        }
+    }
+
+    private validateCardCount(cardCountEl: HTMLInputElement): string | undefined {
+        const cardCountElement = cardCountEl;
+
+        if (cardCountElement.validity.rangeOverflow) {
+            cardCountElement.value = '22';
+            return 'max required value 22';
+        }
+
+        if (cardCountElement.validity.rangeUnderflow) {
+            cardCountElement.value = '4';
+            return 'minimal required value 4';
+        }
+
+        if (cardCountElement.validity.valueMissing) {
+            return "Card count can't be empty, accepted values 4-22";
+        }
+
+        if (cardCountElement.validity.stepMismatch) {
+            return `Amount of cards should be a multiple of ${this.gameConfiguration.sameCardsCount}`;
+        }
     }
 
     private updateSameCardsCount() {
-        this.gameConfiguration.sameCards = parseInt((<HTMLInputElement>document.querySelector('#same-cards-input')).value);
+        const sameCardsElement = <HTMLInputElement>document.querySelector('#same-cards-input');
+        const sameCardsErrorElement = document.querySelector('.same-cards-error');
 
-        if (parseInt((<HTMLInputElement>document.querySelector('#cards-count')).value) % this.gameConfiguration.sameCards != 0) {
-            this.gameConfiguration.cardsCount = 12;
+        if (sameCardsElement.classList.contains('invalid')) {
+            sameCardsElement.classList.remove('invalid');
+            sameCardsErrorElement.classList.remove('error-active');
+
         }
-        (<HTMLInputElement>document.querySelector('#cards-count')).step = `'${this.gameConfiguration.sameCards}'`;
-        document.querySelector('.time-progress').classList.remove('timer');
+        sameCardsErrorElement.innerHTML = '';
 
-        this.newGame();
+        const errorMessage = this.validateSameCardsCount(sameCardsElement);
+
+        if (errorMessage !== undefined) {
+            sameCardsErrorElement.insertAdjacentText('afterbegin', errorMessage);
+            sameCardsElement.classList.add('invalid');
+            sameCardsErrorElement.classList.add('error-active');
+        } else {
+            this.gameConfiguration.sameCardsCount = parseInt(sameCardsElement.value);
+
+            (<HTMLInputElement>document.querySelector('#cards-count')).step = `'${this.gameConfiguration.sameCardsCount}'`;
+
+            document.querySelector('.time-progress').classList.remove('timer');
+            this.newGame();
+        }
+    }
+
+    private validateSameCardsCount(sameCardsEl: HTMLInputElement): string | undefined {
+        const sameCardsElement = sameCardsEl;
+
+        if (sameCardsElement.validity.valueMissing) {
+            return `This field cant't be empty`;
+        }
+
+        if (sameCardsElement.validity.rangeOverflow) {
+            sameCardsElement.value = '4';
+            return 'max required value - 4'
+        }
+
+        if (sameCardsElement.validity.rangeUnderflow) {
+            sameCardsElement.value = '2';
+            return 'min required value - 2';
+        }
     }
 
     public newGame(): void {
-        if (document.querySelector('.timer')) {
-            document.querySelector('.time-progress').classList.remove('timer');
+        if (document.querySelector('.time-progress')) {
+            document.querySelector('.time-progressbar-wrapper').innerHTML = '';
         }
 
         clearTimeout(this.playingDuration);
         document.querySelector('.board').innerHTML = '';
-        this.cards = new Cards(this.gameConfiguration.cardsCount, this.gameConfiguration.sameCards);
-        this.cards.createCards();
-        this.gameplay = new Gameplay(this.cards.cardsList, this.gameConfiguration.sameCards);
+        this.cardsCreator = new CardsCreator(this.gameConfiguration.cardsCount, this.gameConfiguration.sameCardsCount);
+        this.cardsCreator.createCards();
+        this.gameplay = new Gameplay(this.cardsCreator.cardsList, this.gameConfiguration.sameCardsCount);
         this.gameplay.playerMoves = 0;
         this.addClickEventToCards();
         this.startGameDate = new Date().getTime();
         this.playingDuration = window.setTimeout(this.gameOver.bind(this), this.gameConfiguration.timeToCompleteGame);
-
-        document.querySelector('.time-progress').classList.add('timer');
+        this.gameConfiguration.renderTimerProgressBar();
     }
 
     private addClickEventToCards(): void {
@@ -71,14 +141,14 @@ export default class Game {
 
     private manageCardsVisibility(e: Event): void {
         const clickedCardId: number = parseInt((e.target as Element).id);
-        let facingUpCards = this.cards.cardsList.filter(card => card.isFacingUp == true);
+        let facingUpCards = this.cardsCreator.cardsList.filter(card => card.isFacingUp === true);
 
         this.gameplay.hideVisibleCards(facingUpCards);
 
         this.gameplay.showCard(clickedCardId);
-        facingUpCards = this.cards.cardsList.filter(card => card.isFacingUp == true);
+        facingUpCards = this.cardsCreator.cardsList.filter(card => card.isFacingUp === true);
 
-        if (facingUpCards.length == this.gameConfiguration.sameCards) {
+        if (facingUpCards.length === this.gameConfiguration.sameCardsCount) {
             if (this.gameplay.checkIfFoundPair(facingUpCards)) {
                 document.querySelector(`[id='${clickedCardId}']`).removeEventListener('click', this.cardEvent);
             }
@@ -98,7 +168,7 @@ export default class Game {
             </div>
         </div>
         `;
-        document.querySelector('.time-progress').classList.remove('timer');
+        document.querySelector('.time-progressbar-wrapper').innerHTML = '';
 
         clearTimeout(this.playingDuration);
 
@@ -109,7 +179,7 @@ export default class Game {
     private endGameMessage(): void {
         const elapsedTime = Math.ceil((new Date().getTime() - this.startGameDate) / 1000);
         clearTimeout(this.playingDuration);
-        document.querySelector('.time-progress').classList.remove('timer');
+        document.querySelector('.time-progressbar-wrapper').innerHTML = '';
 
         const html: string = `
         <div class='message-overlay'>

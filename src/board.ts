@@ -4,6 +4,8 @@ export default class Board {
         const html: string = `
         <div class="body-wrapper">
             <div class="app-wrapper">
+                <form class='board-form'></form>
+                <div class='time-progressbar-wrapper'></div>
                 <div class='board'></div>
             </div>
         </div>

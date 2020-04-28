@@ -13,7 +13,7 @@ export default class Gameplay {
 
     public showCard(clickedCardId: number): void {
         this.playerMoves++;
-        if (this.cards[clickedCardId] && this.cards[clickedCardId].pairFound == false) {
+        if (this.cards[clickedCardId] && this.cards[clickedCardId].pairFound === false) {
             this.cards[clickedCardId].isFacingUp = true;
 
             const html = `<img src='${this.cards[clickedCardId].imageSrc}' id='card${clickedCardId}'>`;
@@ -52,7 +52,7 @@ export default class Gameplay {
 
     public hideVisibleCards(FacingUpCards: Card[]): void {
         const facingUpCards = FacingUpCards;
-        if (facingUpCards.length == this.sameCards) {
+        if (facingUpCards.length === this.sameCards) {
             for (let cardIndex = 0; cardIndex < facingUpCards.length; cardIndex++) {
                 document.querySelector(`#card${this.cards[facingUpCards[cardIndex].id].id}`).remove();
                 this.cards[facingUpCards[cardIndex].id].isFacingUp = false;
@@ -61,9 +61,9 @@ export default class Gameplay {
     }
 
     public checkIfGameCompleted(): boolean {
-        const cardsWithFoundPair = this.cards.filter(card => card.pairFound == true);
+        const cardsWithFoundPair = this.cards.filter(card => card.pairFound === true);
 
-        if (cardsWithFoundPair.length == this.cards.length) {
+        if (cardsWithFoundPair.length === this.cards.length) {
             return true;
         } else {
             return false;
