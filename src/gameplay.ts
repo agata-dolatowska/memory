@@ -3,14 +3,17 @@ import Card from './card';
 export default class Gameplay {
     public playerMoves: number = 0;
     public cards: Card[] = [];
+    public sameCards: number;
+    public timeToCompleteGame: number;
 
-    constructor(cards: Card[]) {
+    constructor(cards: Card[], sameCards: number) {
         this.cards = cards;
+        this.sameCards = sameCards;
     }
 
     public showCard(clickedCardId: number): void {
         this.playerMoves++;
-        if (this.cards[clickedCardId].pairFound == false) {
+        if (this.cards[clickedCardId] && this.cards[clickedCardId].pairFound === false) {
             this.cards[clickedCardId].isFacingUp = true;
 
             const html = `<img src='${this.cards[clickedCardId].imageSrc}' id='card${clickedCardId}'>`;
@@ -23,7 +26,7 @@ export default class Gameplay {
         const facingUpCards = FacingUpCards;
 
         if (facingUpCards != undefined) {
-            if (facingUpCards[0].imageSrc == facingUpCards[1].imageSrc) {
+            if (this.allFacingUpCardsHaveSameImage(facingUpCards)) {
                 for (let cardIndex = 0; cardIndex < facingUpCards.length; cardIndex++) {
                     this.cards[facingUpCards[cardIndex].id].isFacingUp = false;
                     this.cards[facingUpCards[cardIndex].id].pairFound = true;
@@ -35,9 +38,21 @@ export default class Gameplay {
         return false;
     }
 
+    private allFacingUpCardsHaveSameImage(cardsUp: Card[]): boolean {
+        const facingUpCards = cardsUp;
+        const firstCardImage = facingUpCards[0].imageSrc;
+
+        for (let cardId = 1; cardId < facingUpCards.length; cardId++) {
+            if (firstCardImage != facingUpCards[cardId].imageSrc) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public hideVisibleCards(FacingUpCards: Card[]): void {
         const facingUpCards = FacingUpCards;
-        if (facingUpCards.length == 2) {
+        if (facingUpCards.length === this.sameCards) {
             for (let cardIndex = 0; cardIndex < facingUpCards.length; cardIndex++) {
                 document.querySelector(`#card${this.cards[facingUpCards[cardIndex].id].id}`).remove();
                 this.cards[facingUpCards[cardIndex].id].isFacingUp = false;
@@ -46,9 +61,9 @@ export default class Gameplay {
     }
 
     public checkIfGameCompleted(): boolean {
-        const cardsWithFoundPair = this.cards.filter(card => card.pairFound == true);
+        const cardsWithFoundPair = this.cards.filter(card => card.pairFound === true);
 
-        if (cardsWithFoundPair.length == this.cards.length) {
+        if (cardsWithFoundPair.length === this.cards.length) {
             return true;
         } else {
             return false;
